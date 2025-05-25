@@ -47,6 +47,9 @@ export default function DraggableChip({ chip, onRemove, className = "" }) {
     }, 0);
   };
 
+  const categoryIndicator = chip.category === "expense" ? "−" : "+";
+  const categoryColor = chip.category === "expense" ? "#dc2626" : "#16a34a";
+
   return (
     <div 
       draggable
@@ -54,7 +57,17 @@ export default function DraggableChip({ chip, onRemove, className = "" }) {
       className={`flex justify-between items-center p-2 rounded text-xs cursor-move hover:opacity-80 transition-opacity ${className}`}
       style={{backgroundColor: '#DDCBB7', color: '#7B4B36'}}
     >
-      <span className="font-medium">{chip.title}</span>
+      <div className="flex items-center gap-2">
+        {chip.category && (
+          <span 
+            className="font-bold text-sm"
+            style={{color: categoryColor}}
+          >
+            {categoryIndicator}
+          </span>
+        )}
+        <span className="font-medium">{chip.title}</span>
+      </div>
       <div className="flex items-center gap-2">
         <span>${chip.amount.toFixed(2)}</span>
         {onRemove && (

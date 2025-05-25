@@ -1,19 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function ChipCreator({ onCreateChip }) {
+export default function ChipCreator({ onCreateChip, defaultAmount = null }) {
   const [chipTitle, setChipTitle] = useState("");
   const [chipDate, setChipDate] = useState("");
   const [chipType, setChipType] = useState("daybudget"); // daybudget or storage
+  const [chipAmount, setChipAmount] = useState(defaultAmount ? String(defaultAmount) : "");
+
+  // Update chipAmount when defaultAmount changes
+  useEffect(() => {
+    if (defaultAmount !== null) {
+      setChipAmount(String(defaultAmount));
+    }
+  }, [defaultAmount]);
 
   const handleSubmit = () => {
-    if (chipTitle.trim()) {
+    const finalAmount = defaultAmount !== null ? defaultAmount : parseFloat(chipAmount);
+    
+    if (chipTitle.trim() && !isNaN(finalAmount) && finalAmount !== null) {
       onCreateChip({
         title: chipTitle.trim(),
-        date: chipType === "storage" ? chipDate : null,
-        type: chipType
+        type: chipType,
+        amount: finalAmount
       });
       setChipTitle("");
       setChipDate("");
+      if (defaultAmount === null) {
+        setChipAmount("");
+      }
     }
   };
 
@@ -27,32 +40,33 @@ export default function ChipCreator({ onCreateChip }) {
         className="w-full p-2 rounded border text-sm"
         style={{backgroundColor: 'white', borderColor: '#82896E', color: '#7B4B36'}}
       />
-      
-      <div className="flex gap-2">
-        <select
-          value={chipType}
-          onChange={(e) => setChipType(e.target.value)}
-          className="flex-1 p-2 rounded border text-sm"
+
+      {/* Show amount input only if defaultAmount is not provided */}
+      {defaultAmount === null && (
+        <input
+          type="number"
+          step="0.01"
+          placeholder="Amount ($)"
+          value={chipAmount}
+          onChange={(e) => setChipAmount(e.target.value)}
+          className="w-full p-2 rounded border text-sm"
           style={{backgroundColor: 'white', borderColor: '#82896E', color: '#7B4B36'}}
+        />
+      )}
+
+      {/* Show amount display if defaultAmount is provided */}
+      {defaultAmount !== null && (
+        <div 
+          className="w-full p-2 rounded border text-sm font-medium text-center"
+          style={{backgroundColor: '#A3AC8C', color: 'white'}}
         >
-          <option value="daybudget">Day Budget</option>
-          <option value="storage">Budget Storage</option>
-        </select>
-        
-        {chipType === "storage" && (
-          <input
-            type="date"
-            value={chipDate}
-            onChange={(e) => setChipDate(e.target.value)}
-            className="flex-1 p-2 rounded border text-sm"
-            style={{backgroundColor: 'white', borderColor: '#82896E', color: '#7B4B36'}}
-          />
-        )}
-      </div>
+          Amount: ${defaultAmount.toFixed(2)}
+        </div>
+      )}
       
       <button
         onClick={handleSubmit}
-        disabled={!chipTitle.trim() || (chipType === "storage" && !chipDate)}
+        disabled={!chipTitle.trim() || (defaultAmount === null && (!chipAmount.trim() || isNaN(parseFloat(chipAmount))))}
         className="w-full py-2 rounded text-white font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
         style={{backgroundColor: '#A3AC8C'}}
       >

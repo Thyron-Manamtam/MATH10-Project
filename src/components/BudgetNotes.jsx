@@ -1,73 +1,80 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DraggableChip from './DraggableChip';
 
-export default function BudgetNotes({ onSubmitBudget, onAddChipToDay }) {
+export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAddChip, onRemoveChip }) {
   const [date, setDate] = useState("");
   const [chips, setChips] = useState([]);
   const [chipTitle, setChipTitle] = useState("");
   const [chipAmount, setChipAmount] = useState("");
+  const [chipCategory, setChipCategory] = useState("expense");
   const [showChipForm, setShowChipForm] = useState(false);
+
+  // Update local chips when dayBudgetChips prop changes
+  useEffect(() => {
+    setChips(dayBudgetChips);
+  }, [dayBudgetChips]);
 
   const addChip = () => {
     if (chipTitle.trim() && chipAmount.trim()) {
-      const newChip = {
-        id: Date.now(),
+      const chipData = {
         title: chipTitle.trim(),
-        amount: parseFloat(chipAmount)
+        amount: parseFloat(chipAmount),
+        category: chipCategory,
+        type: "daybudget"
       };
-      setChips([...chips, newChip]);
+      onAddChip(chipData);
       setChipTitle("");
       setChipAmount("");
+      setChipCategory("expense");
       setShowChipForm(false);
     }
   };
 
   const removeChip = (chipId) => {
-    setChips(chips.filter(chip => chip.id !== chipId));
+    onRemoveChip(chipId, "daybudget");
   };
 
   const submitDayBudget = () => {
     if (date && chips.length > 0) {
+      const total = chips.reduce((sum, chip) => {
+        return chip.category === "expense" 
+          ? sum - chip.amount 
+          : sum + chip.amount;
+      }, 0);
+      
       const budgetData = {
         id: Date.now(),
         date: date,
         chips: chips,
-        total: chips.reduce((sum, chip) => sum + chip.amount, 0)
+        total: total
       };
       onSubmitBudget(budgetData);
       
       // Reset form
       setDate("");
-      setChips([]);
       setChipTitle("");
       setChipAmount("");
+      setChipCategory("expense");
+      // Clear chips through parent
+      chips.forEach(chip => onRemoveChip(chip.id, "daybudget"));
     }
   };
 
   const clearForm = () => {
     setDate("");
-    setChips([]);
     setChipTitle("");
     setChipAmount("");
+    setChipCategory("expense");
     setShowChipForm(false);
+    // Clear all day budget chips
+    chips.forEach(chip => onRemoveChip(chip.id, "daybudget"));
   };
 
-  // Handle adding chip from calculator
-  const addChipFromCalculator = (chipData) => {
-    if (chipData.type === "daybudget") {
-      const newChip = {
-        id: Date.now(),
-        title: chipData.title,
-        amount: chipData.amount
-      };
-      setChips([...chips, newChip]);
-    }
-  };
-
-  // Expose the function to parent component
-  if (onAddChipToDay) {
-    onAddChipToDay.current = addChipFromCalculator;
-  }
+  const chipsTotal = chips.reduce((sum, chip) => {
+    return chip.category === "expense" 
+      ? sum - chip.amount 
+      : sum + chip.amount;
+  }, 0);
 
   return (
     <div
@@ -128,6 +135,7 @@ export default function BudgetNotes({ onSubmitBudget, onAddChipToDay }) {
                   setShowChipForm(false);
                   setChipTitle("");
                   setChipAmount("");
+                  setChipCategory("expense");
                 }}
                 className="text-red-600 hover:text-red-800 font-bold text-lg"
               >
@@ -149,6 +157,20 @@ export default function BudgetNotes({ onSubmitBudget, onAddChipToDay }) {
                 }}
               />
               
+              <select
+                value={chipCategory}
+                onChange={(e) => setChipCategory(e.target.value)}
+                className="w-full p-2 rounded border focus:outline-none"
+                style={{
+                  backgroundColor: 'white',
+                  borderColor: '#82896E',
+                  color: '#7B4B36'
+                }}
+              >
+                <option value="expense">Expense (-)</option>
+                <option value="savings">Savings (+)</option>
+              </select>
+              
               <input
                 type="number"
                 step="0.01"
@@ -165,7 +187,8 @@ export default function BudgetNotes({ onSubmitBudget, onAddChipToDay }) {
               
               <button
                 onClick={addChip}
-                className="w-full py-2 rounded text-white font-medium hover:opacity-90 transition-opacity"
+                disabled={!chipTitle.trim() || !chipAmount.trim()}
+                className="w-full py-2 rounded text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
                 style={{backgroundColor: '#A3AC8C'}}
               >
                 Save Chip
@@ -191,7 +214,7 @@ export default function BudgetNotes({ onSubmitBudget, onAddChipToDay }) {
               className="mt-2 p-2 rounded text-center font-bold"
               style={{backgroundColor: '#A3AC8C', color: 'white'}}
             >
-              Total: ${chips.reduce((sum, chip) => sum + chip.amount, 0).toFixed(2)}
+              Total: ${chipsTotal.toFixed(2)}
             </div>
           </div>
         )}

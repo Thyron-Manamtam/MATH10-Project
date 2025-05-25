@@ -3,7 +3,7 @@ import Button from './Button';
 import Display from './Display';
 import ChipCreator from './ChipCreator';
 
-export default function Calculator({ onCreateChip }) {
+export default function Calculator({ onCreateChip, availableChips = [] }) {
   const [display, setDisplay] = useState("0");
   const [previousValue, setPreviousValue] = useState(null);
   const [operation, setOperation] = useState(null);
@@ -79,7 +79,11 @@ export default function Calculator({ onCreateChip }) {
       setPreviousValue(null);
       setOperation(null);
       setWaitingForNewValue(true);
-      setShowChipPopup(true); // Show chip creation popup after calculation
+      
+      // Only show chip creation popup if chips were used in calculation
+      if (usedChips.length > 0) {
+        setShowChipPopup(true);
+      }
     }
   };
 
@@ -202,8 +206,8 @@ export default function Calculator({ onCreateChip }) {
         </div>
       </div>
 
-      {/* Chip Creation Popup */}
-      {showChipPopup && (
+      {/* Chip Creation Popup - Only show if chips were used */}
+      {showChipPopup && usedChips.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div 
             className="rounded-lg p-6 w-full max-w-md mx-4 border"
@@ -214,31 +218,29 @@ export default function Calculator({ onCreateChip }) {
             </h3>
 
             {/* Update existing chip option */}
-            {usedChips.length > 0 && (
-              <div 
-                className="mb-4 p-4 rounded-lg border"
-                style={{backgroundColor: '#DDCBB7', borderColor: '#82896E'}}
-              >
-                <h4 className="font-medium mb-3" style={{color: '#7B4B36'}}>
-                  Update Existing Chip:
-                </h4>
-                <div className="space-y-2">
-                  {usedChips.map((chip) => (
-                    <button
-                      key={chip.id}
-                      onClick={() => handleUpdateChip(chip)}
-                      className="w-full p-2 rounded text-left hover:opacity-80 transition-opacity"
-                      style={{backgroundColor: '#white', color: '#7B4B36', border: '1px solid #82896E'}}
-                    >
-                      <div className="flex justify-between">
-                        <span>{chip.title}</span>
-                        <span>${chip.amount.toFixed(2)} → ${parseFloat(display).toFixed(2)}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+            <div 
+              className="mb-4 p-4 rounded-lg border"
+              style={{backgroundColor: '#DDCBB7', borderColor: '#82896E'}}
+            >
+              <h4 className="font-medium mb-3" style={{color: '#7B4B36'}}>
+                Update Existing Chip:
+              </h4>
+              <div className="space-y-2">
+                {usedChips.map((chip) => (
+                  <button
+                    key={chip.id}
+                    onClick={() => handleUpdateChip(chip)}
+                    className="w-full p-2 rounded text-left hover:opacity-80 transition-opacity border"
+                    style={{backgroundColor: 'white', color: '#7B4B36', borderColor: '#82896E'}}
+                  >
+                    <div className="flex justify-between">
+                      <span>{chip.title}</span>
+                      <span>${chip.amount.toFixed(2)} → ${parseFloat(display).toFixed(2)}</span>
+                    </div>
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
 
             {/* Create new chip option */}
             <div 
@@ -248,7 +250,7 @@ export default function Calculator({ onCreateChip }) {
               <h4 className="font-medium mb-3" style={{color: '#7B4B36'}}>
                 Create New Chip:
               </h4>
-              <ChipCreator onCreateChip={handleCreateChip} />
+              <ChipCreator onCreateChip={handleCreateChip} defaultAmount={parseFloat(display)} />
             </div>
 
             {/* Cancel button */}
@@ -257,7 +259,7 @@ export default function Calculator({ onCreateChip }) {
                 setShowChipPopup(false);
                 setUsedChips([]);
               }}
-              className="w-full py-2 text-white hover:opacity-80 transition-opacity"
+              className="w-full py-2 text-white hover:opacity-80 transition-opacity rounded"
               style={{backgroundColor: '#7B4B36'}}
             >
               Cancel
