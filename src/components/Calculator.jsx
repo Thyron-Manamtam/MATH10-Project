@@ -1,33 +1,6 @@
 import { useState } from "react";
-
-// Reusable Button Component
-const Button = ({ onClick, className = "", children, style = {}, ...props }) => (
-  <button
-    className={`h-16 text-xl font-medium rounded-md transition-all duration-150 active:scale-95 hover:shadow-md ${className}`}
-    onClick={onClick}
-    style={style}
-    {...props}
-  >
-    {children}
-  </button>
-);
-
-// Calculator Display Component
-const Display = ({ value }) => (
-  <div 
-    className="rounded-lg p-6 mb-4 border" 
-    style={{backgroundColor: '#DDCBB7', borderColor: '#A3AC8C'}}
-  >
-    <div className="text-right">
-      <div 
-        className="text-4xl font-light leading-none overflow-hidden" 
-        style={{color: '#7B4B36'}}
-      >
-        {value.length > 9 ? parseFloat(value).toExponential(3) : value}
-      </div>
-    </div>
-  </div>
-);
+import Button from './Button';
+import Display from './Display';
 
 export default function Calculator() {
   const [display, setDisplay] = useState("0");
