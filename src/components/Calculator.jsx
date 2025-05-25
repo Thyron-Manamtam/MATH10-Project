@@ -1,15 +1,16 @@
 import { useState } from "react";
-import Button from './Button';
-import Display from './Display';
-import ChipCreator from './ChipCreator';
+import Button from "./Button";
+import Display from "./Display";
+import ChipCreator from "./ChipCreator";
 
-export default function Calculator({ onCreateChip, availableChips = [] }) {
+// Calculator Component
+function Calculator({ onCreateChip, availableChips = [] }) {
   const [display, setDisplay] = useState("0");
   const [previousValue, setPreviousValue] = useState(null);
   const [operation, setOperation] = useState(null);
   const [waitingForNewValue, setWaitingForNewValue] = useState(false);
   const [showChipPopup, setShowChipPopup] = useState(false);
-  const [usedChips, setUsedChips] = useState([]); // Track chips used in calculation
+  const [usedChips, setUsedChips] = useState([]);
 
   const inputNumber = (num) => {
     if (waitingForNewValue) {
@@ -80,7 +81,6 @@ export default function Calculator({ onCreateChip, availableChips = [] }) {
       setOperation(null);
       setWaitingForNewValue(true);
       
-      // Only show chip creation popup if chips were used in calculation
       if (usedChips.length > 0) {
         setShowChipPopup(true);
       }
@@ -103,7 +103,6 @@ export default function Calculator({ onCreateChip, availableChips = [] }) {
     setDisplay(String(chipData.amount));
     setWaitingForNewValue(true);
     
-    // Track the chip used in calculation
     setUsedChips(prev => {
       const exists = prev.find(chip => chip.id === chipData.id);
       if (!exists) {
@@ -136,69 +135,85 @@ export default function Calculator({ onCreateChip, availableChips = [] }) {
     setUsedChips([]);
   };
 
-  // Button style configurations
   const buttonStyles = {
     number: {
-      backgroundColor: '#DDCBB7',
-      color: 'black'
+      backgroundColor: '#F9F7F4',
+      color: '#2F1B14',
+      borderColor: '#8B4513',
+      fontFamily: "'Times New Roman', serif"
     },
     operator: {
-      backgroundColor: '#A3AC8C',
-      color: 'white'
+      backgroundColor: '#8B4513',
+      color: '#F9F7F4',
+      borderColor: '#654321',
+      fontFamily: "'Times New Roman', serif"
     },
     equals: {
-      backgroundColor: '#A3AC8C',
-      color: 'white'
+      backgroundColor: '#654321',
+      color: '#F9F7F4',
+      borderColor: '#2F1B14',
+      fontFamily: "'Times New Roman', serif"
     }
   };
 
   return (
     <>
       <div 
-        className="rounded-lg p-6 shadow-2xl w-full max-w-sm border" 
-        style={{backgroundColor: '#997C70', borderColor: '#7B4B36'}}
+        className="rounded-lg p-6 shadow-2xl w-full max-w-sm border-4 relative" 
+        style={{
+          backgroundColor: '#F2EDE6', 
+          borderColor: '#8B4513',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23D2B48C' fill-opacity='0.1'%3E%3Cpath d='M20 20c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8zm0-20c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8z'/%3E%3C/g%3E%3C/svg%3E")`
+        }}
       >
-        <h2 className="text-white text-xl font-semibold mb-4 text-center">Budget Calculator</h2>
+        {/* Vintage letterhead */}
+        <div className="text-center mb-6 border-b-2 pb-4" style={{ borderColor: '#8B4513' }}>
+          <h2 className="text-xl font-bold mb-1" style={{ 
+            color: '#2F1B14',
+            fontFamily: "'Times New Roman', serif",
+            textShadow: '1px 1px 2px rgba(139, 69, 19, 0.3)'
+          }}>
+            Financial Calculator
+          </h2>
+          <div className="text-xs italic" style={{ color: '#8B4513' }}>
+            Est. 1850 • Precision & Elegance
+          </div>
+        </div>
         
         <Display value={display} onDrop={handleDrop} onDragOver={handleDragOver} />
 
         <div className="grid grid-cols-4 gap-3">
-          {/* Row 1 - Function buttons */}
-          <Button onClick={clear} style={buttonStyles.operator}>AC</Button>
-          <Button onClick={handleToggleSign} style={buttonStyles.operator}>±</Button>
-          <Button onClick={handlePercentage} style={buttonStyles.operator}>%</Button>
-          <Button onClick={() => performOperation("÷")} style={buttonStyles.operator}>÷</Button>
+          <Button onClick={clear} style={{...buttonStyles.operator, border: '2px solid #654321'}}>AC</Button>
+          <Button onClick={handleToggleSign} style={{...buttonStyles.operator, border: '2px solid #654321'}}>±</Button>
+          <Button onClick={handlePercentage} style={{...buttonStyles.operator, border: '2px solid #654321'}}>%</Button>
+          <Button onClick={() => performOperation("÷")} style={{...buttonStyles.operator, border: '2px solid #654321'}}>÷</Button>
 
-          {/* Row 2 */}
-          <Button onClick={() => inputNumber(7)} style={buttonStyles.number}>7</Button>
-          <Button onClick={() => inputNumber(8)} style={buttonStyles.number}>8</Button>
-          <Button onClick={() => inputNumber(9)} style={buttonStyles.number}>9</Button>
-          <Button onClick={() => performOperation("×")} style={buttonStyles.operator}>×</Button>
+          <Button onClick={() => inputNumber(7)} style={{...buttonStyles.number, border: '2px solid #8B4513'}}>7</Button>
+          <Button onClick={() => inputNumber(8)} style={{...buttonStyles.number, border: '2px solid #8B4513'}}>8</Button>
+          <Button onClick={() => inputNumber(9)} style={{...buttonStyles.number, border: '2px solid #8B4513'}}>9</Button>
+          <Button onClick={() => performOperation("×")} style={{...buttonStyles.operator, border: '2px solid #654321'}}>×</Button>
 
-          {/* Row 3 */}
-          <Button onClick={() => inputNumber(4)} style={buttonStyles.number}>4</Button>
-          <Button onClick={() => inputNumber(5)} style={buttonStyles.number}>5</Button>
-          <Button onClick={() => inputNumber(6)} style={buttonStyles.number}>6</Button>
-          <Button onClick={() => performOperation("-")} style={buttonStyles.operator}>−</Button>
+          <Button onClick={() => inputNumber(4)} style={{...buttonStyles.number, border: '2px solid #8B4513'}}>4</Button>
+          <Button onClick={() => inputNumber(5)} style={{...buttonStyles.number, border: '2px solid #8B4513'}}>5</Button>
+          <Button onClick={() => inputNumber(6)} style={{...buttonStyles.number, border: '2px solid #8B4513'}}>6</Button>
+          <Button onClick={() => performOperation("-")} style={{...buttonStyles.operator, border: '2px solid #654321'}}>−</Button>
 
-          {/* Row 4 */}
-          <Button onClick={() => inputNumber(1)} style={buttonStyles.number}>1</Button>
-          <Button onClick={() => inputNumber(2)} style={buttonStyles.number}>2</Button>
-          <Button onClick={() => inputNumber(3)} style={buttonStyles.number}>3</Button>
-          <Button onClick={() => performOperation("+")} style={buttonStyles.operator}>+</Button>
+          <Button onClick={() => inputNumber(1)} style={{...buttonStyles.number, border: '2px solid #8B4513'}}>1</Button>
+          <Button onClick={() => inputNumber(2)} style={{...buttonStyles.number, border: '2px solid #8B4513'}}>2</Button>
+          <Button onClick={() => inputNumber(3)} style={{...buttonStyles.number, border: '2px solid #8B4513'}}>3</Button>
+          <Button onClick={() => performOperation("+")} style={{...buttonStyles.operator, border: '2px solid #654321'}}>+</Button>
 
-          {/* Row 5 */}
           <Button 
             onClick={() => inputNumber(0)} 
-            style={buttonStyles.number}
+            style={{...buttonStyles.number, border: '2px solid #8B4513'}}
             className="col-span-2"
           >
             0
           </Button>
-          <Button onClick={inputDecimal} style={buttonStyles.number}>.</Button>
+          <Button onClick={inputDecimal} style={{...buttonStyles.number, border: '2px solid #8B4513'}}>.</Button>
           <Button 
             onClick={handleEquals} 
-            style={buttonStyles.equals}
+            style={{...buttonStyles.equals, border: '2px solid #2F1B14'}}
             className="text-2xl"
           >
             =
@@ -206,35 +221,50 @@ export default function Calculator({ onCreateChip, availableChips = [] }) {
         </div>
       </div>
 
-      {/* Chip Creation Popup - Only show if chips were used */}
       {showChipPopup && usedChips.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div 
-            className="rounded-lg p-6 w-full max-w-md mx-4 border"
-            style={{backgroundColor: '#A96F59', borderColor: '#7B4B36'}}
+            className="rounded-lg p-6 w-full max-w-md mx-4 border-4 relative"
+            style={{
+              backgroundColor: '#F2EDE6', 
+              borderColor: '#8B4513',
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23D2B48C' fill-opacity='0.1'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3Ccircle cx='13' cy='13' r='1'/%3E%3C/g%3E%3C/svg%3E")`
+            }}
           >
-            <h3 className="text-white text-lg font-semibold mb-4 text-center">
-              Result: ${parseFloat(display).toFixed(2)}
-            </h3>
+            <div className="text-center border-b-2 pb-3 mb-4" style={{ borderColor: '#8B4513' }}>
+              <h3 className="text-lg font-bold" style={{ 
+                color: '#2F1B14',
+                fontFamily: "'Times New Roman', serif"
+              }}>
+                Calculation Result
+              </h3>
+              <div className="text-2xl font-bold mt-2" style={{ color: '#654321' }}>
+                ${parseFloat(display).toFixed(2)}
+              </div>
+            </div>
 
-            {/* Update existing chip option */}
             <div 
-              className="mb-4 p-4 rounded-lg border"
-              style={{backgroundColor: '#DDCBB7', borderColor: '#82896E'}}
+              className="mb-4 p-4 rounded-lg border-2"
+              style={{backgroundColor: '#F9F7F4', borderColor: '#8B4513'}}
             >
-              <h4 className="font-medium mb-3" style={{color: '#7B4B36'}}>
-                Update Existing Chip:
+              <h4 className="font-bold mb-3 italic" style={{color: '#2F1B14'}}>
+                Update Existing Entry:
               </h4>
               <div className="space-y-2">
                 {usedChips.map((chip) => (
                   <button
                     key={chip.id}
                     onClick={() => handleUpdateChip(chip)}
-                    className="w-full p-2 rounded text-left hover:opacity-80 transition-opacity border"
-                    style={{backgroundColor: 'white', color: '#7B4B36', borderColor: '#82896E'}}
+                    className="w-full p-3 rounded text-left hover:opacity-80 transition-opacity border-2"
+                    style={{
+                      backgroundColor: '#F9F7F4', 
+                      color: '#2F1B14', 
+                      borderColor: '#8B4513',
+                      fontFamily: "'Times New Roman', serif"
+                    }}
                   >
                     <div className="flex justify-between">
-                      <span>{chip.title}</span>
+                      <span className="italic">{chip.title}</span>
                       <span>${chip.amount.toFixed(2)} → ${parseFloat(display).toFixed(2)}</span>
                     </div>
                   </button>
@@ -242,25 +272,28 @@ export default function Calculator({ onCreateChip, availableChips = [] }) {
               </div>
             </div>
 
-            {/* Create new chip option */}
             <div 
-              className="mb-4 p-4 rounded-lg border"
-              style={{backgroundColor: '#DDCBB7', borderColor: '#82896E'}}
+              className="mb-4 p-4 rounded-lg border-2"
+              style={{backgroundColor: '#F9F7F4', borderColor: '#8B4513'}}
             >
-              <h4 className="font-medium mb-3" style={{color: '#7B4B36'}}>
-                Create New Chip:
+              <h4 className="font-bold mb-3 italic" style={{color: '#2F1B14'}}>
+                Create New Entry:
               </h4>
               <ChipCreator onCreateChip={handleCreateChip} defaultAmount={parseFloat(display)} />
             </div>
 
-            {/* Cancel button */}
             <button
               onClick={() => {
                 setShowChipPopup(false);
                 setUsedChips([]);
               }}
-              className="w-full py-2 text-white hover:opacity-80 transition-opacity rounded"
-              style={{backgroundColor: '#7B4B36'}}
+              className="w-full py-3 hover:opacity-80 transition-opacity rounded border-2 font-bold"
+              style={{
+                backgroundColor: '#2F1B14',
+                color: '#F9F7F4',
+                borderColor: '#8B4513',
+                fontFamily: "'Times New Roman', serif"
+              }}
             >
               Cancel
             </button>
@@ -270,3 +303,5 @@ export default function Calculator({ onCreateChip, availableChips = [] }) {
     </>
   );
 }
+
+export default Calculator;

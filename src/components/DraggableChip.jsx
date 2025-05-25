@@ -1,99 +1,82 @@
-export default function DraggableChip({ chip, onRemove, className = "" }) {
+// DraggableChip Component
+function DraggableChip({ chip, onRemove, className = "" }) {
   const handleDragStart = (e) => {
     e.dataTransfer.setData("text/plain", JSON.stringify(chip));
     
-    // Create a mail-like drag image
     const dragImage = document.createElement('div');
     dragImage.innerHTML = `
       <div style="
-        width: 140px; 
-        height: 80px; 
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        border: 2px solid #A3AC8C;
+        width: 160px; 
+        height: 90px; 
+        background: linear-gradient(135deg, #F9F7F4 0%, #F2EDE6 100%);
+        border: 2px solid #8B4513;
         border-radius: 8px;
         display: flex;
         flex-direction: column;
-        padding: 10px;
-        font-size: 11px;
+        padding: 12px;
+        font-size: 12px;
         font-weight: 500;
-        color: #7B4B36;
-        box-shadow: 0 8px 16px rgba(123, 75, 54, 0.15);
-        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        color: #2F1B14;
+        box-shadow: 0 8px 16px rgba(47, 27, 20, 0.2);
+        font-family: 'Times New Roman', serif;
         position: relative;
         overflow: hidden;
       ">
-        <!-- Mail-like header bar -->
+        <!-- Vintage header with wax seal effect -->
         <div style="
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 20px;
-          background: linear-gradient(135deg, #A3AC8C 0%, #82896E 100%);
+          top: -5px;
+          right: 15px;
+          width: 25px;
+          height: 25px;
+          background: radial-gradient(circle, #8B4513 0%, #654321 100%);
+          border-radius: 50%;
+          border: 3px solid #2F1B14;
           display: flex;
           align-items: center;
-          padding: 0 8px;
+          justify-content: center;
         ">
           <div style="
-            width: 6px;
-            height: 6px;
-            background: ${chip.category === 'expense' ? '#5F6550' : '#B16A5C'};
+            width: 8px;
+            height: 8px;
+            background: ${chip.category === 'expense' ? '#A0522D' : '#CD853F'};
             border-radius: 50%;
-            margin-right: 4px;
           "></div>
-          <div style="
-            font-size: 8px;
-            color: white;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          ">
-            ${chip.category === 'expense' ? 'EXPENSE' : 'INCOME'}
-          </div>
         </div>
         
-        <!-- Content area -->
-        <div style="
-          margin-top: 25px;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        ">
-          <!-- Title -->
+        <!-- Letter content -->
+        <div style="margin-top: 10px;">
           <div style="
-            font-size: 10px; 
-            font-weight: 700;
-            margin-bottom: 6px; 
+            font-size: 11px; 
+            font-weight: bold;
+            margin-bottom: 8px; 
             text-align: left; 
-            line-height: 1.2;
-            color: #7B4B36;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            line-height: 1.3;
+            color: #2F1B14;
+            font-style: italic;
           ">
-            ${chip.title.length > 16 ? chip.title.substring(0, 16) + '...' : chip.title}
+            ${chip.title.length > 18 ? chip.title.substring(0, 18) + '...' : chip.title}
           </div>
           
-          <!-- Amount -->
           <div style="
-            font-size: 16px; 
-            font-weight: 800; 
-            color: ${chip.category === 'expense' ? '#5F6550' : '#B16A5C'};
+            font-size: 18px; 
+            font-weight: bold; 
+            color: ${chip.category === 'expense' ? '#8B0000' : '#006400'};
             text-align: left;
-            line-height: 1;
+            font-family: 'Times New Roman', serif;
           ">
             ${chip.category === 'expense' ? '-' : '+'}$${chip.amount.toFixed(2)}
           </div>
         </div>
         
-        <!-- Bottom accent line -->
+        <!-- Vintage paper lines -->
         <div style="
           position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: 3px;
-          background: ${chip.category === 'expense' ? '#5F6550' : '#B16A5C'};
+          bottom: 15px;
+          left: 12px;
+          right: 12px;
+          height: 1px;
+          background: linear-gradient(to right, transparent, #8B4513, transparent);
         "></div>
       </div>
     `;
@@ -103,56 +86,58 @@ export default function DraggableChip({ chip, onRemove, className = "" }) {
     dragImage.style.left = '-1000px';
     document.body.appendChild(dragImage);
     
-    e.dataTransfer.setDragImage(dragImage, 70, 40);
+    e.dataTransfer.setDragImage(dragImage, 80, 45);
     
-    // Clean up the drag image after a short delay
     setTimeout(() => {
       document.body.removeChild(dragImage);
     }, 0);
   };
 
-  const categoryColor = chip.category === "expense" ? "#5F6550" : "#B16A5C";
+  const categoryColor = chip.category === "expense" ? "#8B0000" : "#006400";
 
   return (
     <div 
       draggable
       onDragStart={handleDragStart}
-      className={`relative rounded-lg cursor-move hover:shadow-lg transition-all transform hover:scale-[0.98] border overflow-hidden ${className}`}
+      className={`relative rounded-lg cursor-move hover:shadow-lg transition-all transform hover:scale-[0.98] border-2 overflow-hidden ${className}`}
       style={{
-        backgroundColor: '#ffffff',
-        borderColor: '#A3AC8C',
-        fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
-        minHeight: '70px'
+        backgroundColor: '#F9F7F4',
+        borderColor: '#8B4513',
+        fontFamily: "'Times New Roman', serif",
+        minHeight: '80px',
+        backgroundImage: 'linear-gradient(45deg, transparent 49%, rgba(139, 69, 19, 0.05) 50%, rgba(139, 69, 19, 0.05) 51%, transparent 52%)',
+        backgroundSize: '10px 10px'
       }}
     >
-      {/* Mail-like header bar */}
+      {/* Wax seal in corner */}
       <div 
-        className="absolute top-0 left-0 right-0 h-5 flex items-center px-2"
+        className="absolute top-2 right-3 w-6 h-6 rounded-full border-2 flex items-center justify-center"
         style={{ 
-          background: 'linear-gradient(135deg, #A3AC8C 0%, #82896E 100%)' 
+          background: 'radial-gradient(circle, #8B4513 0%, #654321 100%)',
+          borderColor: '#2F1B14'
         }}
       >
         <div 
-          className="w-2 h-2 rounded-full mr-2"
+          className="w-2 h-2 rounded-full"
           style={{ backgroundColor: categoryColor }}
         />
-        <div 
-          className="text-xs font-semibold text-white uppercase tracking-wide"
-          style={{ fontSize: '8px' }}
-        >
-          {chip.category === "expense" ? "EXPENSE" : "INCOME"}
-        </div>
       </div>
       
       {/* Content area */}
-      <div className="pt-6 p-4">
-        <div className="flex justify-between items-start mb-2">
-          <div className="flex-1 pr-4">
+      <div className="pt-4 p-4">
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex-1 pr-6">
             <div 
-              className="font-bold text-sm leading-tight"
-              style={{ color: '#7B4B36' }}
+              className="font-bold text-sm leading-tight italic"
+              style={{ color: '#2F1B14' }}
             >
               {chip.title}
+            </div>
+            <div 
+              className="text-xs mt-1 uppercase tracking-wider"
+              style={{ color: '#8B4513' }}
+            >
+              {chip.category === "expense" ? "Expenditure" : "Receipt"}
             </div>
           </div>
         </div>
@@ -161,7 +146,10 @@ export default function DraggableChip({ chip, onRemove, className = "" }) {
         <div className="flex justify-between items-center">
           <div 
             className="text-xl font-bold"
-            style={{ color: categoryColor }}
+            style={{ 
+              color: categoryColor,
+              fontFamily: "'Times New Roman', serif"
+            }}
           >
             {chip.category === "expense" ? "-" : "+"}${chip.amount.toFixed(2)}
           </div>
@@ -169,10 +157,11 @@ export default function DraggableChip({ chip, onRemove, className = "" }) {
           {onRemove && (
             <button
               onClick={() => onRemove(chip.id)}
-              className="w-6 h-6 rounded flex items-center justify-center hover:opacity-80 transition-opacity text-sm font-bold ml-2"
+              className="w-7 h-7 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity text-sm font-bold ml-2 border-2"
               style={{
-                backgroundColor: '#997C70',
-                color: 'white'
+                backgroundColor: '#2F1B14',
+                color: '#F9F7F4',
+                borderColor: '#8B4513'
               }}
             >
               ×
@@ -181,11 +170,15 @@ export default function DraggableChip({ chip, onRemove, className = "" }) {
         </div>
       </div>
 
-      {/* Bottom accent line */}
+      {/* Vintage paper line at bottom */}
       <div 
-        className="absolute bottom-0 left-0 right-0 h-1"
-        style={{ backgroundColor: categoryColor }}
+        className="absolute bottom-2 left-4 right-4 h-px"
+        style={{ 
+          background: 'linear-gradient(to right, transparent, #8B4513, transparent)' 
+        }}
       />
     </div>
   );
 }
+
+export default DraggableChip;

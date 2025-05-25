@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 
-export default function ChipCreator({ onCreateChip, defaultAmount = null }) {
+// ChipCreator Component
+function ChipCreator({ onCreateChip, defaultAmount = null }) {
   const [chipTitle, setChipTitle] = useState("");
   const [chipDate, setChipDate] = useState("");
-  const [chipType, setChipType] = useState("daybudget"); // daybudget or storage
+  const [chipType, setChipType] = useState("daybudget");
   const [chipAmount, setChipAmount] = useState(defaultAmount ? String(defaultAmount) : "");
 
-  // Update chipAmount when defaultAmount changes
   useEffect(() => {
     if (defaultAmount !== null) {
       setChipAmount(String(defaultAmount));
@@ -31,21 +31,22 @@ export default function ChipCreator({ onCreateChip, defaultAmount = null }) {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <input
         type="text"
-        placeholder="Chip title"
+        placeholder="Item description..."
         value={chipTitle}
         onChange={(e) => setChipTitle(e.target.value)}
-        className="w-full p-2 rounded border text-sm"
+        className="w-full p-3 rounded border-2 text-sm"
         style={{
-          backgroundColor: '#DDCBB7', 
-          borderColor: '#A3AC8C', 
-          color: '#7B4B36'
+          backgroundColor: '#F9F7F4', 
+          borderColor: '#8B4513', 
+          color: '#2F1B14',
+          fontFamily: "'Times New Roman', serif",
+          boxShadow: 'inset 2px 2px 4px rgba(139, 69, 19, 0.1)'
         }}
       />
 
-      {/* Show amount input only if defaultAmount is not provided */}
       {defaultAmount === null && (
         <input
           type="number"
@@ -53,20 +54,26 @@ export default function ChipCreator({ onCreateChip, defaultAmount = null }) {
           placeholder="Amount ($)"
           value={chipAmount}
           onChange={(e) => setChipAmount(e.target.value)}
-          className="w-full p-2 rounded border text-sm"
+          className="w-full p-3 rounded border-2 text-sm"
           style={{
-            backgroundColor: '#DDCBB7', 
-            borderColor: '#A3AC8C', 
-            color: '#7B4B36'
+            backgroundColor: '#F9F7F4', 
+            borderColor: '#8B4513', 
+            color: '#2F1B14',
+            fontFamily: "'Times New Roman', serif",
+            boxShadow: 'inset 2px 2px 4px rgba(139, 69, 19, 0.1)'
           }}
         />
       )}
 
-      {/* Show amount display if defaultAmount is provided */}
       {defaultAmount !== null && (
         <div 
-          className="w-full p-2 rounded border text-sm font-medium text-center"
-          style={{backgroundColor: '#A3AC8C', color: 'white'}}
+          className="w-full p-3 rounded border-2 text-sm font-medium text-center"
+          style={{
+            backgroundColor: '#DDD5C7', 
+            color: '#2F1B14',
+            borderColor: '#8B4513',
+            fontFamily: "'Times New Roman', serif"
+          }}
         >
           Amount: ${defaultAmount.toFixed(2)}
         </div>
@@ -75,11 +82,19 @@ export default function ChipCreator({ onCreateChip, defaultAmount = null }) {
       <button
         onClick={handleSubmit}
         disabled={!chipTitle.trim() || (defaultAmount === null && (!chipAmount.trim() || isNaN(parseFloat(chipAmount))))}
-        className="w-full py-2 rounded text-white font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
-        style={{backgroundColor: '#A3AC8C'}}
+        className="w-full py-3 rounded font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50 border-2"
+        style={{
+          backgroundColor: '#8B4513',
+          color: '#F9F7F4',
+          borderColor: '#654321',
+          fontFamily: "'Times New Roman', serif",
+          boxShadow: '2px 2px 4px rgba(139, 69, 19, 0.3)'
+        }}
       >
-        Create Chip
+        Create Entry
       </button>
     </div>
   );
 }
+
+export default ChipCreator;
