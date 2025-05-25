@@ -1,4 +1,6 @@
-export default function BudgetStorage({ budgetEntries, onDeleteEntry }) {
+import DraggableChip from './DraggableChip';
+
+export default function BudgetStorage({ budgetEntries, onDeleteEntry, onAddChipToStorage }) {
   const totalAllBudgets = budgetEntries.reduce((sum, entry) => sum + entry.total, 0);
 
   return (
@@ -71,15 +73,14 @@ export default function BudgetStorage({ budgetEntries, onDeleteEntry }) {
 
                 {/* Chips Display */}
                 <div className="space-y-1">
+                  <h5 className="text-xs font-medium mb-1" style={{color: '#7B4B36'}}>
+                    Items (Drag to Calculator):
+                  </h5>
                   {entry.chips.map((chip) => (
-                    <div 
+                    <DraggableChip 
                       key={chip.id}
-                      className="flex justify-between text-xs p-2 rounded"
-                      style={{backgroundColor: 'white', color: '#7B4B36'}}
-                    >
-                      <span>{chip.title}</span>
-                      <span className="font-medium">${chip.amount.toFixed(2)}</span>
-                    </div>
+                      chip={chip}
+                    />
                   ))}
                 </div>
               </div>

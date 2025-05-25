@@ -1,8 +1,10 @@
-export default function Display({ value }) {
+export default function Display({ value, onDrop, onDragOver }) {
   return (
     <div 
       className="rounded-lg p-6 mb-4 border" 
       style={{backgroundColor: '#DDCBB7', borderColor: '#A3AC8C'}}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
     >
       <div className="text-right">
         <div 

@@ -1,12 +1,14 @@
 import { useState } from "react";
 import Button from './Button';
 import Display from './Display';
+import ChipCreator from './ChipCreator';
 
-export default function Calculator() {
+export default function Calculator({ onCreateChip }) {
   const [display, setDisplay] = useState("0");
   const [previousValue, setPreviousValue] = useState(null);
   const [operation, setOperation] = useState(null);
   const [waitingForNewValue, setWaitingForNewValue] = useState(false);
+  const [showChipOptions, setShowChipOptions] = useState(false);
 
   const inputNumber = (num) => {
     if (waitingForNewValue) {
@@ -31,6 +33,7 @@ export default function Calculator() {
     setPreviousValue(null);
     setOperation(null);
     setWaitingForNewValue(false);
+    setShowChipOptions(false);
   };
 
   const performOperation = (nextOperation) => {
@@ -74,6 +77,7 @@ export default function Calculator() {
       setPreviousValue(null);
       setOperation(null);
       setWaitingForNewValue(true);
+      setShowChipOptions(true); // Show chip creation options after calculation
     }
   };
 
@@ -85,6 +89,25 @@ export default function Calculator() {
   const handleToggleSign = () => {
     const value = parseFloat(display);
     setDisplay(String(value * -1));
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const chipData = JSON.parse(e.dataTransfer.getData("text/plain"));
+    setDisplay(String(chipData.amount));
+    setWaitingForNewValue(true);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleCreateChip = (chipData) => {
+    onCreateChip({
+      ...chipData,
+      amount: parseFloat(display)
+    });
+    setShowChipOptions(false);
   };
 
   // Button style configurations
@@ -110,7 +133,28 @@ export default function Calculator() {
     >
       <h2 className="text-white text-xl font-semibold mb-4 text-center">Budget Calculator</h2>
       
-      <Display value={display} />
+      <Display value={display} onDrop={handleDrop} onDragOver={handleDragOver} />
+
+      {/* Chip Creation Options */}
+      {showChipOptions && (
+        <div 
+          className="mb-4 p-4 rounded-lg border"
+          style={{backgroundColor: '#DDCBB7', borderColor: '#82896E'}}
+        >
+          <h3 className="font-medium mb-3" style={{color: '#7B4B36'}}>
+            Create Chip from Result: ${parseFloat(display).toFixed(2)}
+          </h3>
+          <div className="space-y-2">
+            <ChipCreator onCreateChip={handleCreateChip} />
+            <button
+              onClick={() => setShowChipOptions(false)}
+              className="w-full py-2 text-sm text-red-600 hover:text-red-800"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-4 gap-3">
         {/* Row 1 - Function buttons */}

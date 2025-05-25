@@ -1,6 +1,7 @@
 import { useState } from "react";
+import DraggableChip from './DraggableChip';
 
-export default function BudgetNotes({ onSubmitBudget }) {
+export default function BudgetNotes({ onSubmitBudget, onAddChipToDay }) {
   const [date, setDate] = useState("");
   const [chips, setChips] = useState([]);
   const [chipTitle, setChipTitle] = useState("");
@@ -17,7 +18,7 @@ export default function BudgetNotes({ onSubmitBudget }) {
       setChips([...chips, newChip]);
       setChipTitle("");
       setChipAmount("");
-      setShowChipForm(false); // Hide form after adding chip
+      setShowChipForm(false);
     }
   };
 
@@ -50,6 +51,23 @@ export default function BudgetNotes({ onSubmitBudget }) {
     setChipAmount("");
     setShowChipForm(false);
   };
+
+  // Handle adding chip from calculator
+  const addChipFromCalculator = (chipData) => {
+    if (chipData.type === "daybudget") {
+      const newChip = {
+        id: Date.now(),
+        title: chipData.title,
+        amount: chipData.amount
+      };
+      setChips([...chips, newChip]);
+    }
+  };
+
+  // Expose the function to parent component
+  if (onAddChipToDay) {
+    onAddChipToDay.current = addChipFromCalculator;
+  }
 
   return (
     <div
@@ -157,25 +175,14 @@ export default function BudgetNotes({ onSubmitBudget }) {
       {/* Display Chips */}
       {chips.length > 0 && (
         <div className="mb-4">
-          <h4 className="text-white text-sm font-medium mb-2">Budget Items:</h4>
+          <h4 className="text-white text-sm font-medium mb-2">Budget Items (Drag to Calculator):</h4>
           <div className="space-y-2 max-h-32 overflow-y-auto">
             {chips.map((chip) => (
-              <div 
+              <DraggableChip 
                 key={chip.id}
-                className="flex justify-between items-center p-2 rounded text-xs"
-                style={{backgroundColor: '#DDCBB7', color: '#7B4B36'}}
-              >
-                <span className="font-medium">{chip.title}</span>
-                <div className="flex items-center gap-2">
-                  <span>${chip.amount.toFixed(2)}</span>
-                  <button
-                    onClick={() => removeChip(chip.id)}
-                    className="text-red-600 hover:text-red-800 font-bold"
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
+                chip={chip}
+                onRemove={removeChip}
+              />
             ))}
           </div>
           <div 
