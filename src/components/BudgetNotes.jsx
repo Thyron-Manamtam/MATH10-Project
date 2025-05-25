@@ -6,7 +6,6 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
   const [chips, setChips] = useState([]);
   const [chipTitle, setChipTitle] = useState("");
   const [chipAmount, setChipAmount] = useState("");
-  const [chipCategory, setChipCategory] = useState("expense");
   const [showChipForm, setShowChipForm] = useState(false);
 
   useEffect(() => {
@@ -14,17 +13,17 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
   }, [dayBudgetChips]);
 
   const addChip = () => {
-    if (chipTitle.trim() && chipAmount.trim()) {
+    if (chipTitle.trim() && chipAmount.trim() && !isNaN(parseFloat(chipAmount))) {
+      const amount = parseFloat(chipAmount);
       const chipData = {
         title: chipTitle.trim(),
-        amount: parseFloat(chipAmount),
-        category: chipCategory,
+        amount: Math.abs(amount), // Store absolute value
+        category: amount >= 0 ? "savings" : "expense", // Auto-determine category
         type: "daybudget"
       };
       onAddChip(chipData);
       setChipTitle("");
       setChipAmount("");
-      setChipCategory("expense");
       setShowChipForm(false);
     }
   };
@@ -52,7 +51,6 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
       setDate("");
       setChipTitle("");
       setChipAmount("");
-      setChipCategory("expense");
       chips.forEach(chip => onRemoveChip(chip.id, "daybudget"));
     }
   };
@@ -61,7 +59,6 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
     setDate("");
     setChipTitle("");
     setChipAmount("");
-    setChipCategory("expense");
     setShowChipForm(false);
     chips.forEach(chip => onRemoveChip(chip.id, "daybudget"));
   };
@@ -178,7 +175,6 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
                   setShowChipForm(false);
                   setChipTitle("");
                   setChipAmount("");
-                  setChipCategory("expense");
                 }}
                 className="w-6 h-6 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity font-bold border-2"
                 style={{
@@ -207,40 +203,30 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
                 }}
               />
               
-              <select
-                value={chipCategory}
-                onChange={(e) => setChipCategory(e.target.value)}
-                className="w-full p-2 rounded border-2 focus:outline-none text-sm"
-                style={{
-                  backgroundColor: '#F9F7F4',
-                  borderColor: '#8B4513',
-                  color: '#2F1B14',
-                  fontFamily: "'Times New Roman', serif"
-                }}
-              >
-                <option value="expense">Expenditure (-)</option>
-                <option value="savings">Revenue (+)</option>
-              </select>
-              
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Amount ($)"
-                value={chipAmount}
-                onChange={(e) => setChipAmount(e.target.value)}
-                className="w-full p-2 rounded border-2 focus:outline-none text-sm"
-                style={{
-                  backgroundColor: '#F9F7F4',
-                  borderColor: '#8B4513',
-                  color: '#2F1B14',
-                  fontFamily: "'Times New Roman', serif",
-                  boxShadow: 'inset 1px 1px 3px rgba(139, 69, 19, 0.1)'
-                }}
-              />
+              <div>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Amount (+ for income, - for expense)"
+                  value={chipAmount}
+                  onChange={(e) => setChipAmount(e.target.value)}
+                  className="w-full p-2 rounded border-2 focus:outline-none text-sm"
+                  style={{
+                    backgroundColor: '#F9F7F4',
+                    borderColor: '#8B4513',
+                    color: '#2F1B14',
+                    fontFamily: "'Times New Roman', serif",
+                    boxShadow: 'inset 1px 1px 3px rgba(139, 69, 19, 0.1)'
+                  }}
+                />
+                <div className="text-xs mt-1 italic" style={{ color: '#8B4513' }}>
+                  Positive values = Income • Negative values = Expense
+                </div>
+              </div>
               
               <button
                 onClick={addChip}
-                disabled={!chipTitle.trim() || !chipAmount.trim()}
+                disabled={!chipTitle.trim() || !chipAmount.trim() || isNaN(parseFloat(chipAmount))}
                 className="w-full py-2 rounded font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-sm border-2"
                 style={{
                   backgroundColor: '#8B4513',
