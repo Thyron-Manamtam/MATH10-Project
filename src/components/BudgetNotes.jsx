@@ -5,6 +5,7 @@ export default function BudgetNotes({ onSubmitBudget }) {
   const [chips, setChips] = useState([]);
   const [chipTitle, setChipTitle] = useState("");
   const [chipAmount, setChipAmount] = useState("");
+  const [showChipForm, setShowChipForm] = useState(false);
 
   const addChip = () => {
     if (chipTitle.trim() && chipAmount.trim()) {
@@ -16,6 +17,7 @@ export default function BudgetNotes({ onSubmitBudget }) {
       setChips([...chips, newChip]);
       setChipTitle("");
       setChipAmount("");
+      setShowChipForm(false); // Hide form after adding chip
     }
   };
 
@@ -46,6 +48,7 @@ export default function BudgetNotes({ onSubmitBudget }) {
     setChips([]);
     setChipTitle("");
     setChipAmount("");
+    setShowChipForm(false);
   };
 
   return (
@@ -82,52 +85,74 @@ export default function BudgetNotes({ onSubmitBudget }) {
         />
       </div>
 
-      {/* Day Budget Chip Form */}
-      <div 
-        className="mb-4 p-4 rounded-lg border"
-        style={{backgroundColor: '#DDCBB7', borderColor: '#82896E'}}
-      >
-        <h3 className="font-medium mb-3" style={{color: '#7B4B36'}}>
-          Day Budget Chip
-        </h3>
-        
-        <div className="space-y-3">
-          <input
-            type="text"
-            placeholder="Title (e.g., Groceries, Gas)"
-            value={chipTitle}
-            onChange={(e) => setChipTitle(e.target.value)}
-            className="w-full p-2 rounded border focus:outline-none"
-            style={{
-              backgroundColor: 'white',
-              borderColor: '#82896E',
-              color: '#7B4B36'
-            }}
-          />
+      {/* Add Chip Button or Day Budget Chip Form */}
+      {!showChipForm ? (
+        <button
+          onClick={() => setShowChipForm(true)}
+          className="w-full mb-4 py-3 rounded text-white font-medium hover:opacity-90 transition-opacity"
+          style={{backgroundColor: '#A3AC8C'}}
+        >
+          Add Chip
+        </button>
+      ) : (
+        <div 
+          className="mb-4 p-4 rounded-lg border"
+          style={{backgroundColor: '#DDCBB7', borderColor: '#82896E'}}
+        >
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-medium" style={{color: '#7B4B36'}}>
+              Day Budget Chip
+            </h3>
+            <button
+              onClick={() => {
+                setShowChipForm(false);
+                setChipTitle("");
+                setChipAmount("");
+              }}
+              className="text-red-600 hover:text-red-800 font-bold text-lg"
+            >
+              ×
+            </button>
+          </div>
           
-          <input
-            type="number"
-            step="0.01"
-            placeholder="Amount ($)"
-            value={chipAmount}
-            onChange={(e) => setChipAmount(e.target.value)}
-            className="w-full p-2 rounded border focus:outline-none"
-            style={{
-              backgroundColor: 'white',
-              borderColor: '#82896E',
-              color: '#7B4B36'
-            }}
-          />
-          
-          <button
-            onClick={addChip}
-            className="w-full py-2 rounded text-white font-medium hover:opacity-90 transition-opacity"
-            style={{backgroundColor: '#A3AC8C'}}
-          >
-            Save Chip
-          </button>
+          <div className="space-y-3">
+            <input
+              type="text"
+              placeholder="Title (e.g., Groceries, Gas)"
+              value={chipTitle}
+              onChange={(e) => setChipTitle(e.target.value)}
+              className="w-full p-2 rounded border focus:outline-none"
+              style={{
+                backgroundColor: 'white',
+                borderColor: '#82896E',
+                color: '#7B4B36'
+              }}
+            />
+            
+            <input
+              type="number"
+              step="0.01"
+              placeholder="Amount ($)"
+              value={chipAmount}
+              onChange={(e) => setChipAmount(e.target.value)}
+              className="w-full p-2 rounded border focus:outline-none"
+              style={{
+                backgroundColor: 'white',
+                borderColor: '#82896E',
+                color: '#7B4B36'
+              }}
+            />
+            
+            <button
+              onClick={addChip}
+              className="w-full py-2 rounded text-white font-medium hover:opacity-90 transition-opacity"
+              style={{backgroundColor: '#A3AC8C'}}
+            >
+              Save Chip
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Display Chips */}
       {chips.length > 0 && (

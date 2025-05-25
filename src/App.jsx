@@ -7,7 +7,21 @@ export default function App() {
   const [budgetEntries, setBudgetEntries] = useState([]);
 
   const handleSubmitBudget = (budgetData) => {
-    setBudgetEntries([...budgetEntries, budgetData]);
+    // Check if an entry with the same date already exists
+    const existingEntryIndex = budgetEntries.findIndex(entry => entry.date === budgetData.date);
+    
+    if (existingEntryIndex !== -1) {
+      // Update existing entry
+      const updatedEntries = [...budgetEntries];
+      updatedEntries[existingEntryIndex] = {
+        ...budgetData,
+        id: updatedEntries[existingEntryIndex].id // Keep the original ID
+      };
+      setBudgetEntries(updatedEntries);
+    } else {
+      // Add new entry
+      setBudgetEntries([...budgetEntries, budgetData]);
+    }
   };
 
   const handleDeleteEntry = (entryId) => {
