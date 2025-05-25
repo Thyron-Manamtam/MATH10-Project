@@ -38,7 +38,11 @@ export default function ChipCreator({ onCreateChip, defaultAmount = null }) {
         value={chipTitle}
         onChange={(e) => setChipTitle(e.target.value)}
         className="w-full p-2 rounded border text-sm"
-        style={{backgroundColor: 'white', borderColor: '#82896E', color: '#7B4B36'}}
+        style={{
+          backgroundColor: '#DDCBB7', 
+          borderColor: '#A3AC8C', 
+          color: '#7B4B36'
+        }}
       />
 
       {/* Show amount input only if defaultAmount is not provided */}
@@ -50,7 +54,11 @@ export default function ChipCreator({ onCreateChip, defaultAmount = null }) {
           value={chipAmount}
           onChange={(e) => setChipAmount(e.target.value)}
           className="w-full p-2 rounded border text-sm"
-          style={{backgroundColor: 'white', borderColor: '#82896E', color: '#7B4B36'}}
+          style={{
+            backgroundColor: '#DDCBB7', 
+            borderColor: '#A3AC8C', 
+            color: '#7B4B36'
+          }}
         />
       )}
 

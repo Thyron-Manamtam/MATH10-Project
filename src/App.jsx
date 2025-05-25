@@ -13,11 +13,24 @@ export default function App() {
     const existingEntryIndex = budgetEntries.findIndex(entry => entry.date === budgetData.date);
     
     if (existingEntryIndex !== -1) {
-      // Update existing entry
+      // Add chips to existing entry instead of replacing
       const updatedEntries = [...budgetEntries];
+      const existingEntry = updatedEntries[existingEntryIndex];
+      
+      // Combine existing chips with new chips
+      const combinedChips = [...existingEntry.chips, ...budgetData.chips];
+      
+      // Recalculate total with all chips
+      const newTotal = combinedChips.reduce((sum, chip) => {
+        return chip.category === "expense" 
+          ? sum - chip.amount 
+          : sum + chip.amount;
+      }, 0);
+      
       updatedEntries[existingEntryIndex] = {
-        ...budgetData,
-        id: updatedEntries[existingEntryIndex].id // Keep the original ID
+        ...existingEntry,
+        chips: combinedChips,
+        total: newTotal
       };
       setBudgetEntries(updatedEntries);
     } else {
@@ -41,6 +54,29 @@ export default function App() {
               : chip
           )
         );
+        
+        // Also update the chip in budget entries
+        setBudgetEntries(prev => 
+          prev.map(entry => ({
+            ...entry,
+            chips: entry.chips.map(chip => 
+              chip.id === chipData.id 
+                ? { ...chip, amount: chipData.amount }
+                : chip
+            ),
+            // Recalculate total for the entry
+            total: entry.chips.map(chip => 
+              chip.id === chipData.id 
+                ? { ...chip, amount: chipData.amount }
+                : chip
+            ).reduce((sum, chip) => {
+              return chip.category === "expense" 
+                ? sum - chip.amount 
+                : sum + chip.amount;
+            }, 0)
+          }))
+        );
+        
       } else if (chipData.type === "storage") {
         setStorageChips(prev => 
           prev.map(chip => 
@@ -48,6 +84,28 @@ export default function App() {
               ? { ...chip, amount: chipData.amount }
               : chip
           )
+        );
+        
+        // Also update the chip in budget entries
+        setBudgetEntries(prev => 
+          prev.map(entry => ({
+            ...entry,
+            chips: entry.chips.map(chip => 
+              chip.id === chipData.id 
+                ? { ...chip, amount: chipData.amount }
+                : chip
+            ),
+            // Recalculate total for the entry
+            total: entry.chips.map(chip => 
+              chip.id === chipData.id 
+                ? { ...chip, amount: chipData.amount }
+                : chip
+            ).reduce((sum, chip) => {
+              return chip.category === "expense" 
+                ? sum - chip.amount 
+                : sum + chip.amount;
+            }, 0)
+          }))
         );
       }
     } else {
@@ -76,11 +134,21 @@ export default function App() {
   // Get all available chips for dragging
   const allChips = [
     ...dayBudgetChips.map(chip => ({ ...chip, type: "daybudget" })),
-    ...storageChips.map(chip => ({ ...chip, type: "storage" }))
+    ...storageChips.map(chip => ({ ...chip, type: "storage" })),
+    // Also include chips from budget entries
+    ...budgetEntries.flatMap(entry => 
+      entry.chips.map(chip => ({ ...chip, type: "storage" }))
+    )
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-100 to-yellow-50 flex items-center justify-center p-6">
+    <div 
+      className="min-h-screen flex items-center justify-center p-6"
+      style={{ 
+        backgroundColor: '#F5F0E8',
+        fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" 
+      }}
+    >
       <div className="flex flex-col xl:flex-row gap-8 w-full max-w-7xl">
         <Calculator 
           onCreateChip={handleCreateChip}

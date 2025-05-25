@@ -6,11 +6,24 @@ export default function BudgetStorage({ budgetEntries, onDeleteEntry, storageChi
   return (
     <div
       className="rounded-lg p-6 shadow-2xl w-full max-w-lg border flex flex-col"
-      style={{backgroundColor: '#A96F59', borderColor: '#7B4B36', height: '600px'}}
+      style={{
+        backgroundColor: '#997C70',
+        borderColor: '#7B4B36',
+        height: '600px',
+        fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif"
+      }}
     >
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-white text-xl font-semibold">Budget Storage</h2>
-        <div className="text-white text-sm">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-white text-xl font-semibold">
+          Budget Storage
+        </h2>
+        <div 
+          className="px-3 py-1 rounded text-sm font-medium"
+          style={{ 
+            backgroundColor: '#DDCBB7', 
+            color: '#7B4B36' 
+          }}
+        >
           {budgetEntries.length} entries
         </div>
       </div>
@@ -20,10 +33,15 @@ export default function BudgetStorage({ budgetEntries, onDeleteEntry, storageChi
         {/* Budget Entries Section */}
         {budgetEntries.length === 0 ? (
           <div 
-            className="text-center p-8 rounded-lg flex-1 flex flex-col justify-center"
-            style={{backgroundColor: '#DDCBB7', color: '#7B4B36'}}
+            className="text-center p-8 rounded flex-1 flex flex-col justify-center border-2 border-dashed"
+            style={{ 
+              backgroundColor: '#DDCBB7', 
+              color: '#7B4B36', 
+              borderColor: '#5F6550' 
+            }}
           >
-            <p className="text-lg">No budget entries yet</p>
+            <div className="text-4xl mb-4">💰</div>
+            <p className="text-lg font-medium">No budget entries yet</p>
             <p className="text-sm opacity-75 mt-2">
               Submit your first day budget to see it here
             </p>
@@ -32,42 +50,68 @@ export default function BudgetStorage({ budgetEntries, onDeleteEntry, storageChi
           <>
             {/* Total Summary */}
             <div 
-              className="p-4 rounded-lg text-center"
-              style={{backgroundColor: '#A3AC8C'}}
+              className="p-4 rounded text-center border"
+              style={{
+                backgroundColor: totalAllBudgets >= 0 ? '#5F6550' : '#B16A5C',
+                color: 'white',
+                borderColor: totalAllBudgets >= 0 ? '#82896E' : '#991b1b'
+              }}
             >
-              <div className="text-white text-sm">Total All Budgets</div>
-              <div className="text-white text-2xl font-bold">
+              <div className="text-sm font-medium mb-1">
+                Total All Budgets
+              </div>
+              <div className="text-2xl font-bold">
                 ${totalAllBudgets.toFixed(2)}
               </div>
             </div>
 
             {/* Budget Entries */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               {budgetEntries.map((entry) => (
                 <div 
                   key={entry.id}
-                  className="p-4 rounded-lg border"
-                  style={{backgroundColor: '#DDCBB7', borderColor: '#82896E'}}
+                  className="p-4 rounded border"
+                  style={{
+                    backgroundColor: '#DDCBB7',
+                    borderColor: '#5F6550'
+                  }}
                 >
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h3 className="font-bold" style={{color: '#7B4B36'}}>
-                        {new Date(entry.date).toLocaleDateString()}
+                      <h3 
+                        className="text-lg font-bold"
+                        style={{ color: '#7B4B36' }}
+                      >
+                        {new Date(entry.date).toLocaleDateString('en-US', {
+                          weekday: 'short',
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
                       </h3>
-                      <p className="text-sm" style={{color: '#7B4B36'}}>
+                      <p 
+                        className="text-sm font-medium"
+                        style={{ color: '#7B4B36' }}
+                      >
                         {entry.chips.length} items
                       </p>
                     </div>
                     <div className="text-right">
                       <div 
-                        className="text-lg font-bold"
-                        style={{color: '#7B4B36'}}
+                        className="text-xl font-bold mb-2"
+                        style={{ 
+                          color: entry.total >= 0 ? '#16a34a' : '#B16A5C' 
+                        }}
                       >
                         ${entry.total.toFixed(2)}
                       </div>
                       <button
                         onClick={() => onDeleteEntry(entry.id)}
-                        className="text-red-600 hover:text-red-800 text-sm"
+                        className="px-3 py-1 text-sm font-medium rounded hover:opacity-80 transition-opacity"
+                        style={{
+                          backgroundColor: '#997C70',
+                          color: 'white'
+                        }}
                       >
                         Delete
                       </button>
@@ -75,16 +119,21 @@ export default function BudgetStorage({ budgetEntries, onDeleteEntry, storageChi
                   </div>
 
                   {/* Chips Display */}
-                  <div className="space-y-1">
-                    <h5 className="text-xs font-medium mb-1" style={{color: '#7B4B36'}}>
+                  <div className="space-y-2">
+                    <h5 
+                      className="text-xs font-semibold uppercase tracking-wide mb-2"
+                      style={{ color: '#7B4B36' }}
+                    >
                       Items (Drag to Calculator):
                     </h5>
-                    {entry.chips.map((chip) => (
-                      <DraggableChip 
-                        key={chip.id}
-                        chip={chip}
-                      />
-                    ))}
+                    <div className="space-y-2">
+                      {entry.chips.map((chip) => (
+                        <DraggableChip 
+                          key={chip.id}
+                          chip={chip}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}

@@ -156,7 +156,7 @@ export default function Calculator({ onCreateChip, availableChips = [] }) {
     <>
       <div 
         className="rounded-lg p-6 shadow-2xl w-full max-w-sm border" 
-        style={{backgroundColor: '#A96F59', borderColor: '#7B4B36'}}
+        style={{backgroundColor: '#997C70', borderColor: '#7B4B36'}}
       >
         <h2 className="text-white text-xl font-semibold mb-4 text-center">Budget Calculator</h2>
         

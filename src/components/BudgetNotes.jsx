@@ -79,14 +79,24 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
   return (
     <div
       className="rounded-lg p-6 shadow-2xl w-full max-w-md border flex flex-col"
-      style={{backgroundColor: '#A96F59', borderColor: '#7B4B36', height: '600px'}}
+      style={{
+        backgroundColor: '#997C70',
+        borderColor: '#7B4B36',
+        height: '600px',
+        fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif"
+      }}
     >
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-white text-xl font-semibold">Day Budget</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-white text-xl font-semibold">
+          Day Budget
+        </h2>
         <button
           onClick={clearForm}
-          className="text-white hover:text-gray-200 text-sm px-3 py-1 rounded-md transition-colors"
-          style={{backgroundColor: '#7B4B36'}}
+          className="px-3 py-1 text-sm font-medium rounded hover:opacity-80 transition-opacity"
+          style={{
+            backgroundColor: '#DDCBB7',
+            color: '#7B4B36'
+          }}
         >
           Clear
         </button>
@@ -97,16 +107,16 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
         {/* Date Input */}
         <div>
           <label className="block text-white text-sm font-medium mb-2">
-            Date (MM-DD-YYYY)
+            Date
           </label>
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-opacity-50"
+            className="w-full p-3 rounded border focus:outline-none"
             style={{
               backgroundColor: '#DDCBB7',
-              borderColor: '#82896E',
+              borderColor: '#5F6550',
               color: '#7B4B36'
             }}
           />
@@ -116,19 +126,25 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
         {!showChipForm ? (
           <button
             onClick={() => setShowChipForm(true)}
-            className="w-full py-3 rounded text-white font-medium hover:opacity-90 transition-opacity"
-            style={{backgroundColor: '#A3AC8C'}}
+            className="w-full py-3 rounded font-semibold hover:opacity-90 transition-opacity"
+            style={{
+              backgroundColor: '#5F6550',
+              color: 'white'
+            }}
           >
-            Add Chip
+            + Add Budget Item
           </button>
         ) : (
           <div 
-            className="p-4 rounded-lg border"
-            style={{backgroundColor: '#DDCBB7', borderColor: '#82896E'}}
+            className="p-4 rounded border"
+            style={{ backgroundColor: '#DDCBB7', borderColor: '#5F6550' }}
           >
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-medium" style={{color: '#7B4B36'}}>
-                Day Budget Chip
+              <h3 
+                className="font-semibold"
+                style={{ color: '#7B4B36' }}
+              >
+                New Budget Item
               </h3>
               <button
                 onClick={() => {
@@ -137,7 +153,11 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
                   setChipAmount("");
                   setChipCategory("expense");
                 }}
-                className="text-red-600 hover:text-red-800 font-bold text-lg"
+                className="w-6 h-6 rounded flex items-center justify-center hover:opacity-80 transition-opacity font-bold"
+                style={{
+                  backgroundColor: '#997C70',
+                  color: 'white'
+                }}
               >
                 ×
               </button>
@@ -149,10 +169,10 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
                 placeholder="Title (e.g., Groceries, Gas)"
                 value={chipTitle}
                 onChange={(e) => setChipTitle(e.target.value)}
-                className="w-full p-2 rounded border focus:outline-none"
+                className="w-full p-2 rounded border focus:outline-none text-sm"
                 style={{
                   backgroundColor: 'white',
-                  borderColor: '#82896E',
+                  borderColor: '#5F6550',
                   color: '#7B4B36'
                 }}
               />
@@ -160,15 +180,15 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
               <select
                 value={chipCategory}
                 onChange={(e) => setChipCategory(e.target.value)}
-                className="w-full p-2 rounded border focus:outline-none"
+                className="w-full p-2 rounded border focus:outline-none text-sm"
                 style={{
                   backgroundColor: 'white',
-                  borderColor: '#82896E',
+                  borderColor: '#5F6550',
                   color: '#7B4B36'
                 }}
               >
                 <option value="expense">Expense (-)</option>
-                <option value="savings">Savings (+)</option>
+                <option value="savings">Income (+)</option>
               </select>
               
               <input
@@ -177,10 +197,10 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
                 placeholder="Amount ($)"
                 value={chipAmount}
                 onChange={(e) => setChipAmount(e.target.value)}
-                className="w-full p-2 rounded border focus:outline-none"
+                className="w-full p-2 rounded border focus:outline-none text-sm"
                 style={{
                   backgroundColor: 'white',
-                  borderColor: '#82896E',
+                  borderColor: '#5F6550',
                   color: '#7B4B36'
                 }}
               />
@@ -188,10 +208,13 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
               <button
                 onClick={addChip}
                 disabled={!chipTitle.trim() || !chipAmount.trim()}
-                className="w-full py-2 rounded text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-                style={{backgroundColor: '#A3AC8C'}}
+                className="w-full py-2 rounded font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                style={{
+                  backgroundColor: '#5F6550',
+                  color: 'white'
+                }}
               >
-                Save Chip
+                Save Item
               </button>
             </div>
           </div>
@@ -200,7 +223,9 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
         {/* Display Chips */}
         {chips.length > 0 && (
           <div>
-            <h4 className="text-white text-sm font-medium mb-2">Budget Items (Drag to Calculator):</h4>
+            <h4 className="text-white text-sm font-semibold mb-3">
+              Budget Items (Drag to Calculator):
+            </h4>
             <div className="space-y-2 max-h-32 overflow-y-auto">
               {chips.map((chip) => (
                 <DraggableChip 
@@ -211,8 +236,12 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
               ))}
             </div>
             <div 
-              className="mt-2 p-2 rounded text-center font-bold"
-              style={{backgroundColor: '#A3AC8C', color: 'white'}}
+              className="mt-4 p-3 rounded text-center font-bold border"
+              style={{
+                backgroundColor: chipsTotal >= 0 ? '#5F6550' : '#B16A5C',
+                color: 'white',
+                borderColor: chipsTotal >= 0 ? '#82896E' : '#991b1b'
+              }}
             >
               Total: ${chipsTotal.toFixed(2)}
             </div>
@@ -224,8 +253,11 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
       <button
         onClick={submitDayBudget}
         disabled={!date || chips.length === 0}
-        className="w-full py-3 rounded text-white font-medium transition-opacity disabled:opacity-50 disabled:cursor-not-allowed mt-4"
-        style={{backgroundColor: '#7B4B36'}}
+        className="w-full py-3 rounded font-bold transition-opacity disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+        style={{
+          backgroundColor: !date || chips.length === 0 ? '#7B4B36' : '#5F6550',
+          color: 'white'
+        }}
       >
         Submit Day Budget
       </button>
