@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import DraggableChip from "./DraggableChip";
 import ChipCreator from "./ChipCreator";
 
 // BudgetStorage Component
 function BudgetStorage({ budgetEntries = [], onDeleteEntry, storageChips = [], onAddChip, onRemoveChip }) {
   const [showChipForm, setShowChipForm] = useState(false);
+  const [sortBy, setSortBy] = useState("all"); // "all", "day", "month"
+  const [selectedDate, setSelectedDate] = useState("");
 
   const addChip = (chipData) => {
     const newChip = {
@@ -26,7 +28,44 @@ function BudgetStorage({ budgetEntries = [], onDeleteEntry, storageChips = [], o
       : sum + chip.amount;
   }, 0);
 
+  // Sorting and filtering logic
+  const sortedAndFilteredEntries = useMemo(() => {
+    let filtered = [...budgetEntries];
+
+    if (sortBy === "day" && selectedDate) {
+      filtered = filtered.filter(entry => entry.date === selectedDate);
+    } else if (sortBy === "month" && selectedDate) {
+      const selectedMonth = selectedDate.substring(0, 7); // YYYY-MM format
+      filtered = filtered.filter(entry => entry.date.substring(0, 7) === selectedMonth);
+    }
+
+    // Sort by date (newest first)
+    return filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+  }, [budgetEntries, sortBy, selectedDate]);
+
+  // Get available dates for filtering
+  const availableDates = useMemo(() => {
+    return [...new Set(budgetEntries.map(entry => entry.date))].sort().reverse();
+  }, [budgetEntries]);
+
+  // Get available months for filtering
+  const availableMonths = useMemo(() => {
+    const months = [...new Set(budgetEntries.map(entry => entry.date.substring(0, 7)))];
+    return months.sort().reverse();
+  }, [budgetEntries]);
+
   const grandTotal = budgetEntries.reduce((total, entry) => total + entry.total, 0) + storageTotal;
+  const filteredTotal = sortedAndFilteredEntries.reduce((total, entry) => total + entry.total, 0);
+
+  const handleSortChange = (newSortBy) => {
+    setSortBy(newSortBy);
+    setSelectedDate("");
+  };
+
+  const resetFilters = () => {
+    setSortBy("all");
+    setSelectedDate("");
+  };
 
   return (
     <div
@@ -76,88 +115,128 @@ function BudgetStorage({ budgetEntries = [], onDeleteEntry, storageChips = [], o
           <div className="text-2xl">£{grandTotal.toFixed(2)}</div>
         </div>
 
-        {/* Storage Chips Section */}
-        <div>
-          {showChipForm && (
-            <div 
-              className="p-4 rounded border-2 mb-3 relative"
-              style={{ 
-                backgroundColor: '#F9F7F4', 
-                borderColor: '#8B4513',
-                backgroundImage: 'linear-gradient(45deg, transparent 49%, rgba(139, 69, 19, 0.03) 50%, rgba(139, 69, 19, 0.03) 51%, transparent 52%)',
-                backgroundSize: '8px 8px'
-              }}
-            >
-              {/* Wax seal decoration */}
-              <div 
-                className="absolute -top-2 -right-2 w-6 h-6 rounded-full border-2 flex items-center justify-center"
+        {/* Sorting Controls */}
+        <div 
+          className="p-3 rounded border-2 space-y-3"
+          style={{ 
+            backgroundColor: '#F9F7F4', 
+            borderColor: '#8B4513',
+            backgroundImage: 'linear-gradient(45deg, transparent 49%, rgba(139, 69, 19, 0.03) 50%, rgba(139, 69, 19, 0.03) 51%, transparent 52%)',
+            backgroundSize: '8px 8px'
+          }}
+        >
+          <div className="flex justify-between items-center">
+            <h4 className="text-sm font-bold italic" style={{ color: '#2F1B14' }}>
+              Sort Records:
+            </h4>
+            {(sortBy !== "all" || selectedDate) && (
+              <button
+                onClick={resetFilters}
+                className="text-xs px-2 py-1 rounded hover:opacity-80 transition-opacity border"
                 style={{
-                  background: 'radial-gradient(circle, #8B4513 0%, #654321 100%)',
-                  borderColor: '#2F1B14'
+                  backgroundColor: '#8B4513',
+                  color: '#F9F7F4',
+                  borderColor: '#654321'
                 }}
               >
-                <div className="w-1 h-1 rounded-full" style={{ backgroundColor: '#F9F7F4' }} />
-              </div>
+                Reset
+              </button>
+            )}
+          </div>
 
-              <div className="flex justify-between items-center mb-3">
-                <h3 
-                  className="font-bold italic text-sm"
-                  style={{ color: '#2F1B14', fontFamily: "'Times New Roman', serif" }}
-                >
-                  Quick Entry
-                </h3>
-                <button
-                  onClick={() => setShowChipForm(false)}
-                  className="w-5 h-5 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity font-bold text-xs border-2"
-                  style={{
-                    backgroundColor: '#2F1B14',
-                    color: '#F9F7F4',
-                    borderColor: '#8B4513'
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-              
-              <ChipCreator onCreateChip={addChip} />
-            </div>
-          )}
+          {/* Sort Type Buttons */}
+          <div className="flex gap-1">
+            {["all", "day", "month"].map((type) => (
+              <button
+                key={type}
+                onClick={() => handleSortChange(type)}
+                className={`flex-1 py-1 px-2 rounded text-xs font-medium border transition-opacity hover:opacity-80 ${
+                  sortBy === type ? 'font-bold' : ''
+                }`}
+                style={{
+                  backgroundColor: sortBy === type ? '#654321' : '#8B4513',
+                  color: '#F9F7F4',
+                  borderColor: sortBy === type ? '#2F1B14' : '#654321',
+                  opacity: sortBy === type ? 1 : 0.8
+                }}
+              >
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </button>
+            ))}
+          </div>
 
-          {storageChips.length > 0 && (
-            <div className="space-y-2 max-h-32 overflow-y-auto mb-4">
-              {storageChips.map((chip) => (
-                <DraggableChip 
-                  key={chip.id}
-                  chip={chip}
-                  onRemove={removeChip}
-                  className="transform scale-90"
-                />
-              ))}
-            </div>
-          )}
-
-          {storageChips.length > 0 && (
-            <div 
-              className="p-2 rounded text-center font-bold text-sm border-2"
+          {/* Date/Month Selector */}
+          {sortBy === "day" && availableDates.length > 0 && (
+            <select
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full p-2 rounded border-2 text-xs"
               style={{
-                backgroundColor: storageTotal >= 0 ? '#8B4513' : '#8B0000',
-                color: '#F9F7F4',
-                borderColor: storageTotal >= 0 ? '#654321' : '#660000',
+                backgroundColor: '#F9F7F4',
+                borderColor: '#8B4513',
+                color: '#2F1B14',
                 fontFamily: "'Times New Roman', serif"
               }}
             >
-              Quick Total: £{storageTotal.toFixed(2)}
+              <option value="">Select a day...</option>
+              {availableDates.map((date) => (
+                <option key={date} value={date}>
+                  {new Date(date).toLocaleDateString('en-GB')}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {sortBy === "month" && availableMonths.length > 0 && (
+            <select
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full p-2 rounded border-2 text-xs"
+              style={{
+                backgroundColor: '#F9F7F4',
+                borderColor: '#8B4513',
+                color: '#2F1B14',
+                fontFamily: "'Times New Roman', serif"
+              }}
+            >
+              <option value="">Select a month...</option>
+              {availableMonths.map((month) => (
+                <option key={month} value={month}>
+                  {new Date(month + '-01').toLocaleDateString('en-GB', { 
+                    year: 'numeric', 
+                    month: 'long' 
+                  })}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Filtered Total Display */}
+          {sortBy !== "all" && selectedDate && (
+            <div 
+              className="p-2 rounded text-center font-bold text-xs border-2"
+              style={{
+                backgroundColor: filteredTotal >= 0 ? '#006400' : '#8B0000',
+                color: '#F9F7F4',
+                borderColor: filteredTotal >= 0 ? '#228B22' : '#660000',
+                fontFamily: "'Times New Roman', serif"
+              }}
+            >
+              Filtered Total: £{filteredTotal.toFixed(2)}
             </div>
           )}
         </div>
 
         {/* Budget Entries History */}
         <div>
-          <h4 className="text-sm font-bold mb-3 italic" style={{ color: '#2F1B14' }}>
-            Daily Records:
+          <h4 className="text-sm font-bold mb-3 italic flex justify-between items-center" style={{ color: '#2F1B14' }}>
+            <span>Daily Records (Individual Entries Draggable):</span>
+            <span className="text-xs font-normal opacity-75">
+              {sortedAndFilteredEntries.length} / {budgetEntries.length} records
+            </span>
           </h4>
           
-          {budgetEntries.length === 0 ? (
+          {sortedAndFilteredEntries.length === 0 ? (
             <div 
               className="text-center py-8 rounded border-2 border-dashed"
               style={{ 
@@ -167,105 +246,79 @@ function BudgetStorage({ budgetEntries = [], onDeleteEntry, storageChips = [], o
               }}
             >
               <div className="text-4xl mb-2 opacity-50">📜</div>
-              <div className="text-sm italic">No records yet</div>
-              <div className="text-xs mt-1">Create entries to build your financial history</div>
+              <div className="text-sm italic">
+                {budgetEntries.length === 0 ? "No records yet" : "No records match your filter"}
+              </div>
+              <div className="text-xs mt-1">
+                {budgetEntries.length === 0 
+                  ? "Create entries to build your financial history"
+                  : "Try adjusting your filter settings"
+                }
+              </div>
             </div>
           ) : (
-            <div className="space-y-3 max-h-64 overflow-y-auto">
-              {budgetEntries.map((entry) => (
-                <div
+            <div className="space-y-4 max-h-64 overflow-y-auto">
+              {sortedAndFilteredEntries.map((entry) => (
+                <div 
                   key={entry.id}
-                  className="rounded-lg p-4 border-2 relative"
+                  className="rounded-lg border-2 p-4 relative"
                   style={{
                     backgroundColor: '#F9F7F4',
                     borderColor: '#8B4513',
                     backgroundImage: 'linear-gradient(45deg, transparent 49%, rgba(139, 69, 19, 0.03) 50%, rgba(139, 69, 19, 0.03) 51%, transparent 52%)',
-                    backgroundSize: '12px 12px'
+                    backgroundSize: '8px 8px'
                   }}
                 >
-                  {/* Wax seal with date */}
-                  <div 
-                    className="absolute -top-2 -right-2 w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold"
-                    style={{
-                      background: entry.total >= 0 
-                        ? 'radial-gradient(circle, #654321 0%, #8B4513 100%)'
-                        : 'radial-gradient(circle, #8B0000 0%, #660000 100%)',
-                      borderColor: '#2F1B14',
-                      color: '#F9F7F4'
-                    }}
-                  >
-                    {new Date(entry.date).getDate()}
-                  </div>
-
-                  <div className="flex justify-between items-start mb-2">
+                  {/* Entry Header */}
+                  <div className="flex justify-between items-center mb-3">
                     <div>
                       <div 
                         className="font-bold text-sm"
                         style={{ color: '#2F1B14', fontFamily: "'Times New Roman', serif" }}
                       >
-                        {new Date(entry.date).toLocaleDateString('en-GB', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
+                        {new Date(entry.date).toLocaleDateString('en-GB')}
                       </div>
-                      <div className="text-xs mt-1" style={{ color: '#8B4513' }}>
-                        {entry.chips.length} entries recorded
+                      <div 
+                        className="text-xs"
+                        style={{ color: '#8B4513' }}
+                      >
+                        {entry.chips.length} entries
                       </div>
                     </div>
-                    <button
-                      onClick={() => onDeleteEntry(entry.id)}
-                      className="w-6 h-6 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity text-xs font-bold border-2"
-                      style={{
-                        backgroundColor: '#8B0000',
-                        color: '#F9F7F4',
-                        borderColor: '#660000'
-                      }}
-                    >
-                      ×
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    {entry.chips.slice(0, 2).map((chip, index) => (
-                      <div key={index} className="flex justify-between text-xs">
-                        <span style={{ color: '#2F1B14' }} className="italic">
-                          {chip.title.length > 20 ? chip.title.substring(0, 20) + '...' : chip.title}
-                        </span>
-                        <span style={{ 
-                          color: chip.category === "expense" ? "#8B0000" : "#006400",
-                          fontWeight: 'bold'
-                        }}>
-                          {chip.category === "expense" ? "-" : "+"}£{chip.amount.toFixed(2)}
-                        </span>
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="font-bold"
+                        style={{ 
+                          color: entry.total >= 0 ? '#006400' : '#8B0000',
+                          fontFamily: "'Times New Roman', serif"
+                        }}
+                      >
+                        £{entry.total.toFixed(2)}
                       </div>
+                      <button
+                        onClick={() => onDeleteEntry(entry.id)}
+                        className="w-6 h-6 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity font-bold text-xs border-2"
+                        style={{
+                          backgroundColor: '#8B0000',
+                          color: '#F9F7F4',
+                          borderColor: '#660000'
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Individual Entry Chips - These are draggable */}
+                  <div className="space-y-2">
+                    {entry.chips.map((chip) => (
+                      <DraggableChip 
+                        key={chip.id}
+                        chip={{...chip, type: "entry"}}
+                        className="transform scale-95"
+                      />
                     ))}
-                    {entry.chips.length > 2 && (
-                      <div className="text-xs italic" style={{ color: '#8B4513' }}>
-                        ... and {entry.chips.length - 2} more entries
-                      </div>
-                    )}
                   </div>
-                  
-                  <div 
-                    className="mt-3 pt-2 border-t-2 text-center font-bold"
-                    style={{ 
-                      borderColor: '#8B4513',
-                      color: entry.total >= 0 ? '#006400' : '#8B0000',
-                      fontFamily: "'Times New Roman', serif"
-                    }}
-                  >
-                    Daily Balance: £{entry.total.toFixed(2)}
-                  </div>
-                  
-                  {/* Vintage paper line at bottom */}
-                  <div 
-                    className="absolute bottom-2 left-4 right-4 h-px"
-                    style={{ 
-                      background: 'linear-gradient(to right, transparent, #8B4513, transparent)' 
-                    }}
-                  />
                 </div>
               ))}
             </div>

@@ -95,6 +95,30 @@ export default function App() {
             }, 0)
           }))
         );
+      } else if (chipData.type === "entry") {
+        // Handle updating chips that are embedded in budget entries
+        setBudgetEntries(prev => 
+          prev.map(entry => {
+            const updatedChips = entry.chips.map(chip => 
+              chip.id === chipData.id 
+                ? { ...chip, amount: chipData.amount }
+                : chip
+            );
+            
+            // Recalculate the total for this entry
+            const newTotal = updatedChips.reduce((sum, chip) => {
+              return chip.category === "expense" 
+                ? sum - chip.amount 
+                : sum + chip.amount;
+            }, 0);
+            
+            return {
+              ...entry,
+              chips: updatedChips,
+              total: newTotal
+            };
+          })
+        );
       }
     } else {
       const newChip = {
@@ -122,7 +146,7 @@ export default function App() {
     ...dayBudgetChips.map(chip => ({ ...chip, type: "daybudget" })),
     ...storageChips.map(chip => ({ ...chip, type: "storage" })),
     ...budgetEntries.flatMap(entry => 
-      entry.chips.map(chip => ({ ...chip, type: "storage" }))
+      entry.chips.map(chip => ({ ...chip, type: "entry" }))
     )
   ];
 
