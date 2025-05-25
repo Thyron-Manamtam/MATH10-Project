@@ -112,7 +112,7 @@ function BudgetStorage({ budgetEntries = [], onDeleteEntry, storageChips = [], o
           <div className="absolute bottom-1 right-1 w-3 h-3 border-r-2 border-b-2" style={{ borderColor: '#F9F7F4' }} />
           
           <div className="text-sm opacity-80 mb-1">Total Estate Value</div>
-          <div className="text-2xl">£{grandTotal.toFixed(2)}</div>
+          <div className="text-2xl">${grandTotal.toFixed(2)}</div>
         </div>
 
         {/* Sorting Controls */}
@@ -222,7 +222,7 @@ function BudgetStorage({ budgetEntries = [], onDeleteEntry, storageChips = [], o
                 fontFamily: "'Times New Roman', serif"
               }}
             >
-              Filtered Total: £{filteredTotal.toFixed(2)}
+              Filtered Total: ${filteredTotal.toFixed(2)}
             </div>
           )}
         </div>
@@ -293,7 +293,7 @@ function BudgetStorage({ budgetEntries = [], onDeleteEntry, storageChips = [], o
                           fontFamily: "'Times New Roman', serif"
                         }}
                       >
-                        £{entry.total.toFixed(2)}
+                        ${entry.total.toFixed(2)}
                       </div>
                       <button
                         onClick={() => onDeleteEntry(entry.id)}

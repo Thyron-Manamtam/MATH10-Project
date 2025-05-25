@@ -225,7 +225,7 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
               <input
                 type="number"
                 step="0.01"
-                placeholder="Amount (£)"
+                placeholder="Amount ($)"
                 value={chipAmount}
                 onChange={(e) => setChipAmount(e.target.value)}
                 className="w-full p-2 rounded border-2 focus:outline-none text-sm"
@@ -285,7 +285,7 @@ export default function BudgetNotes({ onSubmitBudget, dayBudgetChips = [], onAdd
               <div className="absolute bottom-1 left-1 w-2 h-2 border-l-2 border-b-2" style={{ borderColor: '#F9F7F4' }} />
               <div className="absolute bottom-1 right-1 w-2 h-2 border-r-2 border-b-2" style={{ borderColor: '#F9F7F4' }} />
               
-              Balance: £{chipsTotal.toFixed(2)}
+              Balance: ${chipsTotal.toFixed(2)}
             </div>
           </div>
         )}
