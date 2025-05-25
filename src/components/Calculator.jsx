@@ -8,7 +8,8 @@ export default function Calculator({ onCreateChip }) {
   const [previousValue, setPreviousValue] = useState(null);
   const [operation, setOperation] = useState(null);
   const [waitingForNewValue, setWaitingForNewValue] = useState(false);
-  const [showChipOptions, setShowChipOptions] = useState(false);
+  const [showChipPopup, setShowChipPopup] = useState(false);
+  const [usedChips, setUsedChips] = useState([]); // Track chips used in calculation
 
   const inputNumber = (num) => {
     if (waitingForNewValue) {
@@ -33,7 +34,8 @@ export default function Calculator({ onCreateChip }) {
     setPreviousValue(null);
     setOperation(null);
     setWaitingForNewValue(false);
-    setShowChipOptions(false);
+    setShowChipPopup(false);
+    setUsedChips([]);
   };
 
   const performOperation = (nextOperation) => {
@@ -77,7 +79,7 @@ export default function Calculator({ onCreateChip }) {
       setPreviousValue(null);
       setOperation(null);
       setWaitingForNewValue(true);
-      setShowChipOptions(true); // Show chip creation options after calculation
+      setShowChipPopup(true); // Show chip creation popup after calculation
     }
   };
 
@@ -96,6 +98,15 @@ export default function Calculator({ onCreateChip }) {
     const chipData = JSON.parse(e.dataTransfer.getData("text/plain"));
     setDisplay(String(chipData.amount));
     setWaitingForNewValue(true);
+    
+    // Track the chip used in calculation
+    setUsedChips(prev => {
+      const exists = prev.find(chip => chip.id === chipData.id);
+      if (!exists) {
+        return [...prev, chipData];
+      }
+      return prev;
+    });
   };
 
   const handleDragOver = (e) => {
@@ -107,7 +118,18 @@ export default function Calculator({ onCreateChip }) {
       ...chipData,
       amount: parseFloat(display)
     });
-    setShowChipOptions(false);
+    setShowChipPopup(false);
+    setUsedChips([]);
+  };
+
+  const handleUpdateChip = (chipToUpdate) => {
+    onCreateChip({
+      ...chipToUpdate,
+      amount: parseFloat(display),
+      isUpdate: true
+    });
+    setShowChipPopup(false);
+    setUsedChips([]);
   };
 
   // Button style configurations
@@ -127,77 +149,122 @@ export default function Calculator({ onCreateChip }) {
   };
 
   return (
-    <div 
-      className="rounded-lg p-6 shadow-2xl w-full max-w-sm border" 
-      style={{backgroundColor: '#A96F59', borderColor: '#7B4B36'}}
-    >
-      <h2 className="text-white text-xl font-semibold mb-4 text-center">Budget Calculator</h2>
-      
-      <Display value={display} onDrop={handleDrop} onDragOver={handleDragOver} />
+    <>
+      <div 
+        className="rounded-lg p-6 shadow-2xl w-full max-w-sm border" 
+        style={{backgroundColor: '#A96F59', borderColor: '#7B4B36'}}
+      >
+        <h2 className="text-white text-xl font-semibold mb-4 text-center">Budget Calculator</h2>
+        
+        <Display value={display} onDrop={handleDrop} onDragOver={handleDragOver} />
 
-      {/* Chip Creation Options */}
-      {showChipOptions && (
-        <div 
-          className="mb-4 p-4 rounded-lg border"
-          style={{backgroundColor: '#DDCBB7', borderColor: '#82896E'}}
-        >
-          <h3 className="font-medium mb-3" style={{color: '#7B4B36'}}>
-            Create Chip from Result: ${parseFloat(display).toFixed(2)}
-          </h3>
-          <div className="space-y-2">
-            <ChipCreator onCreateChip={handleCreateChip} />
+        <div className="grid grid-cols-4 gap-3">
+          {/* Row 1 - Function buttons */}
+          <Button onClick={clear} style={buttonStyles.operator}>AC</Button>
+          <Button onClick={handleToggleSign} style={buttonStyles.operator}>±</Button>
+          <Button onClick={handlePercentage} style={buttonStyles.operator}>%</Button>
+          <Button onClick={() => performOperation("÷")} style={buttonStyles.operator}>÷</Button>
+
+          {/* Row 2 */}
+          <Button onClick={() => inputNumber(7)} style={buttonStyles.number}>7</Button>
+          <Button onClick={() => inputNumber(8)} style={buttonStyles.number}>8</Button>
+          <Button onClick={() => inputNumber(9)} style={buttonStyles.number}>9</Button>
+          <Button onClick={() => performOperation("×")} style={buttonStyles.operator}>×</Button>
+
+          {/* Row 3 */}
+          <Button onClick={() => inputNumber(4)} style={buttonStyles.number}>4</Button>
+          <Button onClick={() => inputNumber(5)} style={buttonStyles.number}>5</Button>
+          <Button onClick={() => inputNumber(6)} style={buttonStyles.number}>6</Button>
+          <Button onClick={() => performOperation("-")} style={buttonStyles.operator}>−</Button>
+
+          {/* Row 4 */}
+          <Button onClick={() => inputNumber(1)} style={buttonStyles.number}>1</Button>
+          <Button onClick={() => inputNumber(2)} style={buttonStyles.number}>2</Button>
+          <Button onClick={() => inputNumber(3)} style={buttonStyles.number}>3</Button>
+          <Button onClick={() => performOperation("+")} style={buttonStyles.operator}>+</Button>
+
+          {/* Row 5 */}
+          <Button 
+            onClick={() => inputNumber(0)} 
+            style={buttonStyles.number}
+            className="col-span-2"
+          >
+            0
+          </Button>
+          <Button onClick={inputDecimal} style={buttonStyles.number}>.</Button>
+          <Button 
+            onClick={handleEquals} 
+            style={buttonStyles.equals}
+            className="text-2xl"
+          >
+            =
+          </Button>
+        </div>
+      </div>
+
+      {/* Chip Creation Popup */}
+      {showChipPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div 
+            className="rounded-lg p-6 w-full max-w-md mx-4 border"
+            style={{backgroundColor: '#A96F59', borderColor: '#7B4B36'}}
+          >
+            <h3 className="text-white text-lg font-semibold mb-4 text-center">
+              Result: ${parseFloat(display).toFixed(2)}
+            </h3>
+
+            {/* Update existing chip option */}
+            {usedChips.length > 0 && (
+              <div 
+                className="mb-4 p-4 rounded-lg border"
+                style={{backgroundColor: '#DDCBB7', borderColor: '#82896E'}}
+              >
+                <h4 className="font-medium mb-3" style={{color: '#7B4B36'}}>
+                  Update Existing Chip:
+                </h4>
+                <div className="space-y-2">
+                  {usedChips.map((chip) => (
+                    <button
+                      key={chip.id}
+                      onClick={() => handleUpdateChip(chip)}
+                      className="w-full p-2 rounded text-left hover:opacity-80 transition-opacity"
+                      style={{backgroundColor: '#white', color: '#7B4B36', border: '1px solid #82896E'}}
+                    >
+                      <div className="flex justify-between">
+                        <span>{chip.title}</span>
+                        <span>${chip.amount.toFixed(2)} → ${parseFloat(display).toFixed(2)}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Create new chip option */}
+            <div 
+              className="mb-4 p-4 rounded-lg border"
+              style={{backgroundColor: '#DDCBB7', borderColor: '#82896E'}}
+            >
+              <h4 className="font-medium mb-3" style={{color: '#7B4B36'}}>
+                Create New Chip:
+              </h4>
+              <ChipCreator onCreateChip={handleCreateChip} />
+            </div>
+
+            {/* Cancel button */}
             <button
-              onClick={() => setShowChipOptions(false)}
-              className="w-full py-2 text-sm text-red-600 hover:text-red-800"
+              onClick={() => {
+                setShowChipPopup(false);
+                setUsedChips([]);
+              }}
+              className="w-full py-2 text-white hover:opacity-80 transition-opacity"
+              style={{backgroundColor: '#7B4B36'}}
             >
               Cancel
             </button>
           </div>
         </div>
       )}
-
-      <div className="grid grid-cols-4 gap-3">
-        {/* Row 1 - Function buttons */}
-        <Button onClick={clear} style={buttonStyles.operator}>AC</Button>
-        <Button onClick={handleToggleSign} style={buttonStyles.operator}>±</Button>
-        <Button onClick={handlePercentage} style={buttonStyles.operator}>%</Button>
-        <Button onClick={() => performOperation("÷")} style={buttonStyles.operator}>÷</Button>
-
-        {/* Row 2 */}
-        <Button onClick={() => inputNumber(7)} style={buttonStyles.number}>7</Button>
-        <Button onClick={() => inputNumber(8)} style={buttonStyles.number}>8</Button>
-        <Button onClick={() => inputNumber(9)} style={buttonStyles.number}>9</Button>
-        <Button onClick={() => performOperation("×")} style={buttonStyles.operator}>×</Button>
-
-        {/* Row 3 */}
-        <Button onClick={() => inputNumber(4)} style={buttonStyles.number}>4</Button>
-        <Button onClick={() => inputNumber(5)} style={buttonStyles.number}>5</Button>
-        <Button onClick={() => inputNumber(6)} style={buttonStyles.number}>6</Button>
-        <Button onClick={() => performOperation("-")} style={buttonStyles.operator}>−</Button>
-
-        {/* Row 4 */}
-        <Button onClick={() => inputNumber(1)} style={buttonStyles.number}>1</Button>
-        <Button onClick={() => inputNumber(2)} style={buttonStyles.number}>2</Button>
-        <Button onClick={() => inputNumber(3)} style={buttonStyles.number}>3</Button>
-        <Button onClick={() => performOperation("+")} style={buttonStyles.operator}>+</Button>
-
-        {/* Row 5 */}
-        <Button 
-          onClick={() => inputNumber(0)} 
-          style={buttonStyles.number}
-          className="col-span-2"
-        >
-          0
-        </Button>
-        <Button onClick={inputDecimal} style={buttonStyles.number}>.</Button>
-        <Button 
-          onClick={handleEquals} 
-          style={buttonStyles.equals}
-          className="text-2xl"
-        >
-          =
-        </Button>
-      </div>
-    </div>
+    </>
   );
 }

@@ -5,8 +5,8 @@ export default function BudgetStorage({ budgetEntries, onDeleteEntry, onAddChipT
 
   return (
     <div
-      className="rounded-lg p-6 shadow-2xl w-full max-w-lg border h-fit"
-      style={{backgroundColor: '#A96F59', borderColor: '#7B4B36'}}
+      className="rounded-lg p-6 shadow-2xl w-full max-w-lg border flex flex-col"
+      style={{backgroundColor: '#A96F59', borderColor: '#7B4B36', height: '600px'}}
     >
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-white text-xl font-semibold">Budget Storage</h2>
@@ -17,7 +17,7 @@ export default function BudgetStorage({ budgetEntries, onDeleteEntry, onAddChipT
 
       {budgetEntries.length === 0 ? (
         <div 
-          className="text-center p-8 rounded-lg"
+          className="text-center p-8 rounded-lg flex-1 flex flex-col justify-center"
           style={{backgroundColor: '#DDCBB7', color: '#7B4B36'}}
         >
           <p className="text-lg">No budget entries yet</p>
@@ -38,8 +38,8 @@ export default function BudgetStorage({ budgetEntries, onDeleteEntry, onAddChipT
             </div>
           </div>
 
-          {/* Budget Entries */}
-          <div className="space-y-3 max-h-96 overflow-y-auto">
+          {/* Budget Entries - Scrollable */}
+          <div className="flex-1 overflow-y-auto space-y-3">
             {budgetEntries.map((entry) => (
               <div 
                 key={entry.id}
